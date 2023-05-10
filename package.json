@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "start:dev": "rimraf dist && tsc && node./dist/index.js",
-    "test": "npx jest"
+    "test": "npx jest",
+    "build": "rimraf dist && tsc && mkdir -p ./dist/config && cp ./src/config/.development.env ./dist/config/"
   },
   "author": "Donghun Seol",
   "license": "MIT",

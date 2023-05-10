@@ -8,16 +8,16 @@ dotenv.config({ path: __dirname + "/config/.development.env" });
 const localDB = new LocalDB();
 const targetBlog = process.env.TARGET_VELOG as string
 
-const fetchData = async (uri) => {
-  try {
-    const response = await axios.get(uri);
-    const data = response.data;
-    // Process the data or perform any additional operations
-    return data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-};
+// const fetchData = async (uri) => {
+//   try {
+//     const response = await axios.get(uri);
+//     const data = response.data;
+//     // Process the data or perform any additional operations
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//   }
+// };
 
 const checkPostForComment = () => {
   // if already commented false!
