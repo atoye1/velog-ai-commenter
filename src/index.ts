@@ -6,19 +6,36 @@ import { HtmlParser } from "./Post/htmlParser";
 import { VelogPost } from "./Post/VelogPost";
 import { CommentGenerator } from "./CommentGenerator/CommentGenerator";
 import uris from "./uris";
+import { getTargetVelogs } from "./Velog/getTargetVelogs";
+import { Velog } from "./Blog/Velog";
 dotenv.config({ path: __dirname + "/config/.development.env" });
 
 const localDB = new LocalDB();
-const targetBlog = process.env.TARGET_VELOG as string;
+
+const isCommented = (uri: string) => false;
+const isBlacklisted = (uri: string) => false;
 
 const main = async () => {
+  const targetVelogs = getTargetVelogs();
+  let targetUris = new Set<string>();
+
+  for await (let velogId of targetVelogs) {
+    const velog = new Velog(velogId);
+    await velog.scrapPosts();
+    targetUris = new Set([...targetUris, ...velog.postUris]);
+  }
+
   const sessionedClient = new HttpClient();
   await sessionedClient.login();
   const generator = new CommentGenerator();
   let errorCounter = 0;
   console.log(`Batch job starts for ${uris.length} posts`);
 
-  for await (let uri of uris) {
+  for await (let uri of targetUris) {
+    // TODO: implement this
+    if (isCommented(uri)) continue;
+    // TODO: implement this
+    if (isBlacklisted(uri)) continue;
     try {
       const html = await fetchData(uri);
       const postData = HtmlParser.getPostData(uri, html);
@@ -42,24 +59,4 @@ const main = async () => {
   }
   process.exit(0);
 };
-
-// Text for which you want to calculate tokens
-const text = "This is a sample text to count tokens.";
-
-// Function to count tokens in a text
-async function countTokens() {
-  try {
-    const response = await open.tools.tiktoken({
-      texts: [text],
-    });
-    const tokenCount = response.data.length;
-    console.log("Token count:", tokenCount);
-  } catch (error) {
-    console.error("Error counting tokens:", error);
-  }
-}
-
-// Call the function to count tokens
-countTokens();
-
 main();

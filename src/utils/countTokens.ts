@@ -1,11 +1,9 @@
-import { OpenAIApi } from "openai";
+import { Tokenizer } from "tiktoken";
 
 export async function countTokens(text: string) {
   try {
-    const response = await tools.tiktoken({
-      texts: [text],
-    });
-    return response.data.length;
+    const tokenizer = new Tokenizer();
+    return tokenizer.countTokens(text);
   } catch (error) {
     console.error("Error counting tokens:", error);
   }

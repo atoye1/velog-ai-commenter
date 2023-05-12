@@ -1,5 +1,5 @@
 import { HttpClient } from "../httpClient/HttpClient";
-import { ICommentable } from "./ICommentable";
+import { Post } from "./Post";
 import { CommentGenerator } from "../CommentGenerator/CommentGenerator";
 
 export interface PostData {
@@ -10,7 +10,7 @@ export interface PostData {
   tags: string[];
 }
 
-export class VelogPost implements ICommentable {
+export class VelogPost extends Post {
   public post_id: string;
   public title: string;
   public content: string;
@@ -23,6 +23,7 @@ export class VelogPost implements ICommentable {
     private client: HttpClient,
     private generator: CommentGenerator
   ) {
+    super();
     this.post_id = data.post_id;
     this.title = data.title;
     this.content = data.content;

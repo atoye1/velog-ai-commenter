@@ -2,6 +2,7 @@ import axios from "axios";
 import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 import { fetchLoginCode } from "./fetchLoginCode";
+import { postCommentQuery } from "./query";
 
 export class HttpClient {
   private jar;
@@ -99,29 +100,9 @@ export class HttpClient {
 
   async postComment(post_id: string, comment: string) {
     const text = comment;
-    const query = `
-       mutation WriteComment($post_id: ID!, $text: String!, $comment_id: ID) {
-        writeComment(post_id: $post_id, text: $text, comment_id: $comment_id) {
-          id
-          user {
-            id
-            username
-            profile {
-              id
-              thumbnail
-              __typename
-            }
-            __typename
-          }
-          text
-          replies_count
-          __typename
-        }
-      }
-    `;
     const result = await this.client.post("https://v2cdn.velog.io/graphql", {
       operationName: "WriteComment",
-      query,
+      query: postCommentQuery,
       variables: {
         post_id,
         text,
