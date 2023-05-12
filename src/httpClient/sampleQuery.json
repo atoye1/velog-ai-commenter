@@ -1,0 +1,20 @@
+{"operationName":"WriteComment",
+"variables":{ "post_id":"98ea36fa-b363-4b2a-aec9-b6f03b15d989","text":"yellow there!"},
+"query":"mutation WriteComment($post_id: ID!, $text: String!, $comment_id: ID) {
+    writeComment(post_id: $post_id, text: $text, comment_id: $comment_id) {
+        id
+        user
+        {
+            id
+            username
+            profile {
+                id
+                thumbnail
+                __typename
+                }
+                __typename
+                }
+                text
+                replies_count
+                __typename }
+                }"}

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
-import { fetchLoginCode } from "./loginCodeFetcher";
+import { fetchLoginCode } from "./fetchLoginCode";
 
 export class HttpClient {
   private jar;
@@ -9,20 +9,23 @@ export class HttpClient {
   public loginCode: string;
 
   constructor() {
-    console.log("new instance of httpclient about to be created!");
     this.jar = new CookieJar();
     this.client = wrapper(
       axios.create({ jar: this.jar, withCredentials: true })
     );
     this.loginCode = "";
+    console.log("New instance of httpClient created!");
   }
 
   async requestSendMail() {
     try {
+      // TODO: make env variable
+      const email = "ssalssi@naver.com";
       const result = await this.client.post(
         "https://v2.velog.io/api/v2/auth/sendmail",
-        { email: "ssalssi@naver.com" }
+        { email }
       );
+      console.log(`Login mail sent to ${email}`);
     } catch (err) {
       console.error("request send mail error");
       console.error(err);
@@ -33,10 +36,10 @@ export class HttpClient {
     for (let i = 0; i < retry; i++) {
       try {
         const loginCode = await fetchLoginCode();
-        console.log("loginCode : ", loginCode);
         if (!loginCode) {
           throw new Error("Invalid login Code");
         }
+        console.log("LoginCode : ", loginCode);
         this.loginCode = loginCode;
         return;
       } catch (error) {
@@ -51,7 +54,7 @@ export class HttpClient {
   }
 
   async getLoginSession() {
-    if (!this.loginCode) {
+    if (this.loginCode === undefined || this.loginCode === "") {
       throw new Error("You must get loginCode before login");
     }
     await this.client.get(
@@ -69,27 +72,60 @@ export class HttpClient {
       throw new Error("Something went wrong while checking login status");
     }
   }
-}
 
-async function main(retry: number = 5): Promise<HttpClient> {
-  const cl = new HttpClient();
-  await cl.requestSendMail();
-  await new Promise((resolve) => setTimeout(resolve, 100000));
+  async login(retry: number = 5) {
+    console.log("Login called");
+    await this.requestSendMail();
+    console.log("Waiting 10 seconds for login email arrival");
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
-  for (let i = 0; i < retry; i++) {
-    try {
-      await cl.setLoginCode();
-      await cl.getLoginSession();
-      const result = await cl.checkLoginStatus();
-      if (result) {
-        console.log(`success! login code is ${cl.loginCode}`);
-        return cl;
+    for (let i = 0; i < retry; i++) {
+      try {
+        await this.setLoginCode();
+        await this.getLoginSession();
+        const result = await this.checkLoginStatus();
+        if (result) {
+          console.log(`success! login code is ${this.loginCode}`);
+          return this;
+        }
+        throw new Error("Login attempt Failed, retrying after 5 seconds");
+      } catch (error) {
+        console.error(error);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
-      throw new Error("Login attempt Failed, retrying after 5seconds");
-    } catch (error) {
-      console.error(error);
-      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
+    throw new Error(`Login failed after ${retry} trials`);
   }
-  throw new Error(`Fail to make logined HttpClient after ${retry} trials`);
+
+  async postComment(post_id: string, comment: string) {
+    const text = comment;
+    const query = `
+       mutation WriteComment($post_id: ID!, $text: String!, $comment_id: ID) {
+        writeComment(post_id: $post_id, text: $text, comment_id: $comment_id) {
+          id
+          user {
+            id
+            username
+            profile {
+              id
+              thumbnail
+              __typename
+            }
+            __typename
+          }
+          text
+          replies_count
+          __typename
+        }
+      }
+    `;
+    const result = await this.client.post("https://v2cdn.velog.io/graphql", {
+      operationName: "WriteComment",
+      query,
+      variables: {
+        post_id,
+        text,
+      },
+    });
+  }
 }
