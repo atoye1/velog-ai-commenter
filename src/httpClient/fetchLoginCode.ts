@@ -1,11 +1,10 @@
 import imaps from "imap-simple";
 import { ImapSimpleOptions } from "imap-simple";
 import Connection from "imap";
-import * as dotenv from "dotenv";
+import config from "../config/config";
 
-dotenv.config({ path: __dirname + "/.development.env" });
-
-const { NAVER_ID, NAVER_PW } = process.env;
+const { NAVER_ID, NAVER_PW } = config;
+console.log(".ENV from fetchLoginCode ", process.env);
 
 function checkEnv() {
   if (!NAVER_ID || !NAVER_PW)

@@ -1,4 +1,6 @@
-export function getTargetVelogs(): string[] {
-  const targetBlogs = process.env.TARGET_VELOGS as string;
-  return targetBlogs.split(",");
+export function getTargetVelogs(targets: string): string[] {
+  if (!targets) {
+    throw new Error("No target Blogs provided!");
+  }
+  return targets.split(",");
 }

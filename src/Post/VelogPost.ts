@@ -1,14 +1,7 @@
 import { HttpClient } from "../httpClient/HttpClient";
 import { Post } from "./Post";
 import { CommentGenerator } from "../CommentGenerator/CommentGenerator";
-
-export interface PostData {
-  post_id: string;
-  uri: string;
-  title: string;
-  content: string;
-  tags: string[];
-}
+import { IPostData } from "./IPostData";
 
 export class VelogPost extends Post {
   public post_id: string;
@@ -19,7 +12,7 @@ export class VelogPost extends Post {
   public comment: string;
 
   constructor(
-    data: PostData,
+    data: IPostData,
     private client: HttpClient,
     private generator: CommentGenerator
   ) {

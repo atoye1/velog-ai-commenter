@@ -9,6 +9,7 @@
 export class CommentGenerator {
   constructor() {}
   generateComment() {
-    return Promise.resolve("sample mocking comment for api test");
+    const timestamp = new Date().toLocaleString();
+    return Promise.resolve(`sample mocking comment for api test\n${timestamp}`);
   }
 }

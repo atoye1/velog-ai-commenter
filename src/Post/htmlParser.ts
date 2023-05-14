@@ -1,9 +1,9 @@
 import * as cheerio from "cheerio";
 import TurnDownService from "turndown";
-import { PostData } from "./VelogPost";
+import { IPostData } from "./IPostData";
 
 export class HtmlParser {
-  static getPostData(uri: string, html: string): PostData {
+  static getPostData(uri: string, html: string): IPostData {
     const $ = cheerio.load(html);
 
     function extractPostId($: cheerio.Root): string {
